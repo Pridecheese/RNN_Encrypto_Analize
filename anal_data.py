@@ -3,8 +3,8 @@ import json
 import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-def getInitName():
-    url = "https://api.bithumb.com/v1/market/all?isDetails=false"
+def getInitName():#화폐이름 얻어오기
+    nameurl = "https://api.bithumb.com/v1/market/all?isDetails=false"
     headers = {"accept": "application/json"}
     response = requests.get(nameurl, headers=headers)
     res_dict = json.loads(response.text)# json.dumps
@@ -21,7 +21,7 @@ def getInitName():
     encrypto_names = []
     for data in res_dict:
         if "KRW-" not in data["market"]:
-            print(data["market"])#BTC-ETH BTC 마켓
+            #print(data["market"])#BTC-ETH BTC 마켓
             continue
         encrypto_names.append({"symbol":data["market"].split("-")[1],
                                "eng":data["english_name"],
@@ -60,7 +60,7 @@ def generateData(source_data,timeslot):#시계열 훈련 데이터 생성
         y_data.append(source_data[timeslot+ix])
     return np.array(x_data),np.array(y_data)
 
-def confirm_data(x_data,y_data):# 문제 데이터와 정답 데이터 일치성 확인
+def confirm_data(x_data,y_data,source_data):# 문제 데이터와 정답 데이터 일치성 확인
     result_bool=True
     if y_data[0] != x_data[1][-1]:#정답 파일 확인
         result_bool=False
