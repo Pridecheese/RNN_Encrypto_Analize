@@ -73,7 +73,7 @@ def confirm_data(x_data,y_data,source_data):# 문제 데이터와 정답 데이�
     return result_bool # True 일때 일치
 
 def scatterAnal(x_data,y_data,weights,title):#산점도 분석
-    #가중평균 적용
+    #가중평균 적용.
     cvdata = np.average(x_data,axis=1,weights=weights)
     plt.scatter(cvdata,y_data)
     plt.title(title)
