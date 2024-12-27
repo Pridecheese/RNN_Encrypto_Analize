@@ -102,10 +102,11 @@ def train_running(coinname,hanname,timesArr,payment):
         print(y_data.shape)
         fit_his = rmodel.fit(x_data,y_data,validation_data=(x_data,y_data),epochs=count_epoch,batch_size=len(x_data)//10)
         rmodel.save(r"models\{}_{}_rnnmodel.keras".format(coinname,times))
+        with open(r"models\{}_{}_fit_his".format(coinname,times),"wb") as fp:
+            pickle.dump(fit_his, fp)
         if not os.path.exists(r"models\{}_scaler".format(coinname)):
             with open(r"models\{}_scaler".format(coinname), "wb") as fp:
                 pickle.dump(scaler, fp)
-        rnn_graph(fit_his)
         loss,acc = evaluationModel(rmodel,x_data,y_data)
         print("손실도 : ", loss, " 정확도 :",acc)
         rarr = np.random.randint(0,len(x_data)-2,9)
@@ -125,18 +126,28 @@ def train_running(coinname,hanname,timesArr,payment):
         rat = (np.abs(pred_value - true_value) / true_value).sum()/len(true_value) * 100
         print("{}({}) {} 실제값과 예측값 오차율 : {:.2f}".format(coinname,hanname,times,rat,"%"))
 
-
-timeslot = 60
-count_epoch = 3
-weight_avg = np.linspace(0,1,timeslot)
-if len(weight_avg)!=timeslot:
-    print("가중치와 타임슬롯 수량을 동일하게 맞춰주세요")
 #1.화폐이름 목록 추출
 names=getInitName()
-timesArr = ["24h","12h","4h","10m","3m"]
+nameArr = [obj["symbol"] for obj in names]
+print(",".join(nameArr))
+userInput = input("분석할 화폐 목록을 콤마로 구분하여 작성해주세요, 전체선택은 all 을 입력하세요\n")
+if userInput=="all":
+    names=names
+else:
+    userInput = userInput.split(",")
+    names=[{"symbol":obj["symbol"],"eng":obj["eng"],"kor":obj["kor"]}\
+           for obj in names if obj["symbol"] in userInput]
+count_epoch = input("훈련 횟수를 숫자로 지정하세요\n")
+timeslot = 60
+count_epoch = int(count_epoch)
+weight_avg = np.linspace(0,1,timeslot)#평균가중치 부분
+if len(weight_avg)!=timeslot:
+    print("가중치와 타임슬롯 수량을 동일하게 맞춰주세요")
+
+timeArr = ["24h","12h","4h","10m","3m"]
 payment="KRW"
 for coinobj in names:
     coinname = coinobj["symbol"]
     hanname = coinobj["kor"]
-    train_running(coinname,hanname,timesArr,payment)
-    break
+    train_running(coinname,hanname,timeArr,payment)
+rnn_graph(userInput,timeArr)
